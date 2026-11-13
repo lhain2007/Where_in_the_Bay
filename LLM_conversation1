@@ -1,0 +1,452 @@
+
+how to compare the values inputted to values in a list that are already known
+For your Chesapeake Bay water-sample project, you can compare the user's temperature, pH, and salinity inputs against a list of known locations.
+
+A good way to do this is to create a list of dataclass objects, where each object represents a known Chesapeake Bay location.
+
+1. Create a dataclass for known locations
+For example:
+
+@dataclass
+class Location:
+    name: str
+    temperature: float
+    pH: float
+    salinity: float
+
+2. Create a list of known locations
+locations = [
+    Location("Location A", 70.0, 7.8, 15.0),
+    Location("Location B", 65.0, 8.1, 10.0),
+    Location("Location C", 75.0, 7.5, 20.0)
+]
+
+These are fictional example values, not actual Chesapeake Bay measurements.
+
+3. Compare the user's inputs to the list
+You can use a for loop to check every location in your list.
+
+For example, let's say you want to find locations where all three measurements are close to the user's measurements.
+
+@route
+def submit(state: State, temperature: str, pH: str, salinity: str) -> Page:
+
+    temperature = float(temperature)
+    pH = float(pH)
+    salinity = float(salinity)
+
+    matches = []
+
+    for location in locations:
+        if (abs(location.temperature - temperature) <= 2 and
+            abs(location.pH - pH) <= 0.2 and
+            abs(location.salinity - salinity) <= 3):
+
+            matches.append(location.name)
+
+    if len(matches) > 0:
+        return Page(state, [
+            Text("Possible locations:"),
+            Text(", ".join(matches))
+        ])
+    else:
+        return Page(state, [
+            Text("No matching locations found.")
+        ])
+
+4. Understanding the comparison
+The most important part is:
+
+if (abs(location.temperature - temperature) <= 2 and
+    abs(location.pH - pH) <= 0.2 and
+    abs(location.salinity - salinity) <= 3):
+
+This checks whether the measurements are within an acceptable difference.
+
+Measurement
+
+Allowed difference
+
+Temperature
+
+2°F
+
+pH
+
+0.2
+
+Salinity
+
+3 ppm
+
+These are example tolerances that you can adjust based on your actual data.
+
+5. How the program works
+User enters water measurements
+
+Temperature, pH, salinity
+
+Compare against known locations
+
+Use a for loop to check each location
+
+Display possible matching locations
+
+My recommendation: Start with this approach using a list of dataclasses and a for loop. It's a relatively simple way to compare multiple measurements without needing complicated algorithms.
+
+Later, you could improve it to rank locations from the closest match to the least similar match, rather than just finding locations within a certain tolerance.
+
+how to add a header and a description
+In Drafter, you can use Heading() and Text() to add a title and description to your webpage.
+
+Example
+@route
+def index(state: State) -> Page:
+    return Page(state, [
+        Heading("Chesapeake Bay Water Identifier"),
+
+        Text("Enter the temperature, pH, and salinity of your water sample to identify possible locations in the Chesapeake Bay."),
+
+        LineBreak(),
+
+        Text("Enter Temperature in Fahrenheit:"),
+        TextBox("temperature"),
+
+        Text("Enter pH:"),
+        TextBox("pH"),
+
+        Text("Enter Salinity in ppm:"),
+        TextBox("salinity"),
+
+        Button("Submit", submit)
+    ])
+
+Other useful formatting components
+Component
+
+Purpose
+
+Heading("Title")
+
+Large heading
+
+Text("Description")
+
+Regular paragraph text
+
+Subheading("Subtitle")
+
+Smaller heading
+
+LineBreak()
+
+Adds a line break
+
+Tip: I'd recommend using Heading() for your website's name and Text() for a short explanation of what your water identification program does.
+
+Unknown Name
+Your code used the name 'Heading', but that name has not been created yet (or was misspelled).
+
+request.route_execution_failed: Error while processing request for URL 'index': name 'Heading' is not defined
+
+That error means Heading() is not a component recognized by your version of Drafter. Sorry about that!
+
+You can use Title() instead, or simply use Text().
+
+Try this:
+@route
+def index(state: State) -> Page:
+    return Page(state, [
+        Title("Chesapeake Bay Water Identifier"),
+
+        Text("Enter the temperature, pH, and salinity of your water sample to find possible locations in the Chesapeake Bay."),
+
+        LineBreak(),
+
+        Text("Enter Temperature in Fahrenheit:"),
+        TextBox("temperature"),
+
+        Text("Enter pH:"),
+        TextBox("pH"),
+
+        Text("Enter Salinity in ppm:"),
+        TextBox("salinity"),
+
+        Button("Submit", submit)
+    ])
+
+If Title() also gives an error, use Text() for now:
+
+Text("CHESAPEAKE BAY WATER IDENTIFIER")
+
+You can also make text bold using Bold() if supported by your Drafter version.
+
+from drafter import *
+from dataclasses import dataclass
+
+
+set_website_title("Where in the Bay?")
+set_site_information(
+    author="Linnea Hain",
+    description="Find the location of your sample!",
+    sources="https://eyesonthebay.dnr.maryland.gov/",
+    planning=[""],
+    links=["https://github.com/your-username/your-repository"]
+)
+hide_debug_information()
+set_website_framed(False)
+
+@dataclass
+class State:
+    temperature: str
+    pH: str
+    salinity: str
+
+@dataclass
+class Location:
+    name: str
+    temperature: float
+    pH: float
+    salinity: float
+
+all_locations = [Location("Still Pond", 37.90, 7.80, 3.00),
+                Location("Turkey Point", 38.10, 8.20, 0.20),
+                Location("Swan Point", 38.50, 8.00, 11.40),
+                Location("Bay Bridge(N)", 39.00, 8.20, 13.20),
+                Location("Kent Point(SW)", 39.20, 8.20, 15.10),
+                Location("MD Mid Bay", 39.20, 8.20, 16.40),
+                Location("Choptank River", 39.60, 8.20, 17.50),
+                Location("Cove Point", 40.30, 8.30, 16.80),
+                Location("Point No Point", 40.50, 8.20, 19.30),
+                Location("Smith Point", 41.00, 8.20, 19.80) 
+                 ]
+
+@route
+def index(state: State)-> Page:
+    return Page(state, [
+                        Header("Where in the Bay?"),
+                        LineBreak(),
+                        """
+                            LineBreak() creates a line tab on the website so that the text doesn't
+                            become one large paragraph. 
+                        """
+                        
+                        Text("Where in the bay is your sample from?"),
+                        LineBreak(),
+                        Text("Input your information below regarding a sample from January of 2026 to generate possible locations!"),
+                        LineBreak(),
+                        LineBreak(),
+                        
+                        Text("Enter Temperature in Farhenheit"),
+                        TextBox("temperature"),
+                        LineBreak(),
+                        
+                        Text("Enter pH"),
+                        TextBox("pH"),
+                        LineBreak(),
+                        
+                        Text("Enter Salinity in ppt"),
+                        TextBox("salinity"),
+                        LineBreak(),
+                    
+                        Button("Submit", submit)
+                        
+                        ])
+@route
+def submit(state: State)-> Page:
+
+    return Page(state, [
+                        Text("All values:"),
+                        LineBreak(),
+                        
+                        Text("Temperature:"+ state.temperature),
+                        LineBreak(),
+                        
+                        Text("pH:" + state.pH),
+                        LineBreak(),
+                        
+                        Text("Salinity:" + state.salinity),
+                        LineBreak()
+                        
+                        ])
+@route
+def process_matches(state: State, temperature: str, pH: str, salinity: str) -> Page:
+
+    temperature = float(temperature)
+    pH = float(pH)
+    salinity = float(salinity)
+
+    matches = []
+
+    for location in all_locations:
+        if (abs(location.temperature - temperature) <= 2 and
+            abs(location.pH - pH) <= 0.2 and
+            abs(location.salinity - salinity) <= 3):
+            """
+            abs() is the absolute value of an expression. This if statement checks to see
+            if the given sample is within a reasonable range of some possible known location's values.
+            """
+            matches.append(location.name)
+
+    if len(matches) > 0:
+        return Page(state, [
+            Header("Possible Matches"),
+            Text(", ".join(matches))
+            """
+            join() puts together the items from a list that fit within the bounds defined in the
+            for loop above. It puts a , between the matches as well. This only happens if the matches
+            exist (len(matches > 0))
+            """
+        ])
+    else:
+        return Page(state, [
+            Text("No matching locations found.")
+            """
+            This page is returned if there are not locations that match the data put into the system
+            """
+        ])
+
+start_server(State("","",""))
+…
+I can see a few issues in your code that are preventing the website from working as intended. Your overall structure is good, and using dataclasses for your Chesapeake Bay locations is a sensible approach!
+
+Here are the main things I'd fix.
+
+1. Your Submit button calls the wrong route
+Currently, you have:
+
+Button("Submit", submit)
+
+But your process_matches() function is the one that actually compares the measurements.
+
+Change it to:
+
+Button("Submit", process_matches)
+
+2. Fix your process_matches function
+Your function currently expects three additional parameters:
+
+def process_matches(state: State, temperature: str, pH: str, salinity: str)
+
+You can simplify this by using the values stored in your State dataclass.
+
+Since your text boxes use the same names as your State attributes, Drafter can update those attributes when the form is submitted.
+
+Use:
+
+@route
+def process_matches(state: State) -> Page:
+
+    temperature = float(state.temperature)
+    pH = float(state.pH)
+    salinity = float(state.salinity)
+
+    matches = []
+
+    for location in all_locations:
+        if (abs(location.temperature - temperature) <= 2 and
+            abs(location.pH - pH) <= 0.2 and
+            abs(location.salinity - salinity) <= 3):
+
+            matches.append(location.name)
+
+    if len(matches) > 0:
+        return Page(state, [
+            Header("Possible Matches"),
+            Text(", ".join(matches))
+        ])
+
+    else:
+        return Page(state, [
+            Header("No Matches Found"),
+            Text("No matching locations were found.")
+        ])
+
+3. Fix your comments inside Page()
+You have some comments written using triple quotation marks:
+
+"""
+LineBreak() creates a line tab on the website...
+"""
+
+These are actually multiline strings, not comments.
+
+They can also cause syntax errors if you don't put commas between the components in your list.
+
+Use # instead:
+
+# LineBreak() creates a line break on the website.
+
+You can use # for all your explanations throughout the program.
+
+4. Correct your index function
+Here is the corrected version:
+
+@route
+def index(state: State) -> Page:
+    return Page(state, [
+        Header("Where in the Bay?"),
+
+        Text("Where in the bay is your sample from?"),
+
+        Text("Input your information below regarding a sample from January of 2026 to generate possible locations!"),
+
+        LineBreak(),
+
+        Text("Enter Temperature in Fahrenheit"),
+        TextBox("temperature"),
+        LineBreak(),
+
+        Text("Enter pH"),
+        TextBox("pH"),
+        LineBreak(),
+
+        Text("Enter Salinity in ppt"),
+        TextBox("salinity"),
+        LineBreak(),
+
+        Button("Submit", process_matches)
+    ])
+
+5. One important consideration about your data
+Your location list contains measurements for different locations, which is great.
+
+However, make sure:
+
+All temperatures are in Fahrenheit.
+
+All pH measurements use the same measurement method.
+
+All salinity measurements use the same units (your labels currently say ppt).
+
+Your reference measurements correspond to the same sampling period as the user's sample.
+
+Also, your current matching system requires all three measurements to be within the specified tolerances. This could exclude a location that is a very close match overall but slightly outside one tolerance.
+
+How your finished website should work
+Where in the Bay?
+Where in the bay is your sample from?
+
+Input your information below to generate possible locations!
+
+Enter Temperature in Fahrenheit
+
+Temperature
+
+Enter pH
+
+pH
+
+Enter Salinity in ppt
+
+Salinity
+
+Expected layout
+Illustrative preview, not a live Drafter form.
+
+One last suggestion: Eventually, you could make your website rank all 10 locations from most likely to least likely instead of only displaying locations that meet all three tolerances. That would make your water identification project more informative.
+
+
+
+
+
